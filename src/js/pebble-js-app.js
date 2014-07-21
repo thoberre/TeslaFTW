@@ -213,7 +213,8 @@ function doLogin(actions) {
 	};
 	// iOS compatible send
         req.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-        req.send(datausername + "&" + datapassword);}
+        req.send(datausername + "&" + datapassword);
+}
 
 // IO calls to API uses code from: https://github.com/hjespers/teslams
 function getVehicles(actions) {
