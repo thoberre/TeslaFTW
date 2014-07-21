@@ -172,16 +172,14 @@ function performActions(actions) {
 // IO calls to API uses code from: https://github.com/hjespers/teslams
 function doLogin(actions) {
 	console.log("doLogin(): Attempting to receive a token");
-// 	Use of FormData removed due to incompabilities on iOS
-//	var data = new FormData();
-//	data.append('user_session[email]', settingStore.username.trim());
-//	data.append('user_session[password]', settingStore.password.trim());
-//
+	// Use of FormData removed due to incompabilities on iOS
+	// var data = new FormData();
+	// data.append('user_session[email]', settingStore.username.trim());
+	// data.append('user_session[password]', settingStore.password.trim());
 	var datausername;
 	var datapassword;
-// TODO store data
-	datausername = ();
-	datapassword = ();
+        datausername = 'user_session\[email\]' + '='  + settingStore.username.trim();
+        datapassword = 'user_session\[password\]' + '=' + settingStore.password.trim();
 
 	var req = new XMLHttpRequest();
 	req.TimeOut = 2000;
@@ -213,9 +211,9 @@ function doLogin(actions) {
 			}
 		}
 	};
-	// TODO add compability send
-	req.send(datausername + "&" + datapassword);
-}
+	// iOS compatible send
+        req.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        req.send(datausername + "&" + datapassword);}
 
 // IO calls to API uses code from: https://github.com/hjespers/teslams
 function getVehicles(actions) {
