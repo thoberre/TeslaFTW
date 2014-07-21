@@ -1,6 +1,14 @@
 /*
 IDEAS: Shake to refresh range/climate?
 
+thoberre: Hacks to work on iOS 
+	- avoid FormData
+	- removed unused(?) callbacks
+	- use http for configpage since https does not seem to be working for me
+
+	NOTE! Hacks might or might not work, security and stability might suffer
+	use at own risk, no resonsibility on authors whatsoever, you're on your own! 
+
 */
 
 var debug = localStorage.getItem('debug') || false; 
@@ -164,9 +172,17 @@ function performActions(actions) {
 // IO calls to API uses code from: https://github.com/hjespers/teslams
 function doLogin(actions) {
 	console.log("doLogin(): Attempting to receive a token");
-	var data = new FormData();
-	data.append('user_session[email]', settingStore.username.trim());
-	data.append('user_session[password]', settingStore.password.trim());
+// 	Use of FormData removed due to incompabilities on iOS
+//	var data = new FormData();
+//	data.append('user_session[email]', settingStore.username.trim());
+//	data.append('user_session[password]', settingStore.password.trim());
+//
+	var datausername;
+	var datapassword;
+// TODO store data
+	datausername = ();
+	datapassword = ();
+
 	var req = new XMLHttpRequest();
 	req.TimeOut = 2000;
 	req.open('POST', portal +'/login');
@@ -197,7 +213,8 @@ function doLogin(actions) {
 			}
 		}
 	};
-	req.send(data);
+	// TODO add compability send
+	req.send(datausername + "&" + datapassword);
 }
 
 // IO calls to API uses code from: https://github.com/hjespers/teslams
@@ -211,8 +228,8 @@ function getVehicles(actions) {
 			console.log("Response (status: "+req.status+"): " + this.responseText);
 			if(req.status == 200) {
 				console.log("HTTP GET success.\n");
-				try { data = JSON.parse(this.responseText); } catch(err) { return cb(new Error('login failed')); }
-				if (typeof data != "object") return cb(new Error('expecting a JSON object from Tesla Motors cloud service'));
+				try { data = JSON.parse(this.responseText); } catch(err) { return (new Error('login failed')); }
+				if (typeof data != "object") return (new Error('expecting a JSON object from Tesla Motors cloud service'));
 				console.log("Vehicles (num="+ data.length+ "): ");
 				console.log(data);
 				if(data.length !== 0) {
@@ -252,8 +269,8 @@ function getChargedState(actions) {
 			console.log("Response (status: "+req.status+"): " + this.responseText);
 			if(req.status == 200) {
 				console.log("HTTP GET success.\n");
-				try { data = JSON.parse(this.responseText); } catch(err) { return cb(new Error('Data couldnt be parsed. Is it JSON? '+this.responseText)); }
-				if (typeof data != "object") return cb(new Error('expecting a JSON object from Tesla Motors cloud service'));
+				try { data = JSON.parse(this.responseText); } catch(err) { return (new Error('Data couldnt be parsed. Is it JSON? '+this.responseText)); }
+				if (typeof data != "object") return (new Error('expecting a JSON object from Tesla Motors cloud service'));
 				console.log("Results (num="+ data.length+ "): ");
 				console.log(data);
 				chargeData = data;
@@ -329,8 +346,8 @@ function getClimateState(actions) {
 			console.log("Response (status: "+req.status+"): " + this.responseText);
 			if(req.status == 200) {
 				console.log("HTTP GET success.\n");
-				try { data = JSON.parse(this.responseText); } catch(err) { return cb(new Error('Data couldnt be parsed. Is it JSON? '+this.responseText)); }
-				if (typeof data != "object") return cb(new Error('expecting a JSON object from Tesla Motors cloud service'));
+				try { data = JSON.parse(this.responseText); } catch(err) { return (new Error('Data couldnt be parsed. Is it JSON? '+this.responseText)); }
+				if (typeof data != "object") return (new Error('expecting a JSON object from Tesla Motors cloud service'));
 				console.log(data);
 				if(data.length !== 0) {
 					theData = data[0];
@@ -363,8 +380,8 @@ function performCommand(action,actions) {
 			console.log("Response (status: "+req.status+"): " + this.responseText);
 			if(req.status == 200) {
 				console.log("HTTP GET success.\n");
-				try { data = JSON.parse(this.responseText); } catch(err) { return cb(new Error('Data couldnt be parsed. Is it JSON? '+this.responseText)); }
-				if (typeof data != "object") return cb(new Error('expecting a JSON object from Tesla Motors cloud service'));
+				try { data = JSON.parse(this.responseText); } catch(err) { return (new Error('Data couldnt be parsed. Is it JSON? '+this.responseText)); }
+				if (typeof data != "object") return (new Error('expecting a JSON object from Tesla Motors cloud service'));
 				console.log(data);
 				if(data.result === false) {
 					Pebble.showSimpleNotificationOnPebble(action.name,
@@ -401,9 +418,11 @@ function connectFailHandler(e) {
 	console.log("Failed delivering message");
 }
 
+
+// Use non-secure openURL for iOS. Loading stored data in configpage does not work, but data is stored in localstorage
 function showConfiguration(e) {
 	console.log("Configuration menu....");
-	Pebble.openURL('https://dl.dropboxusercontent.com/u/7326702/Do-not-delete/pebbleconf1.html?name='+settingStore.username);
+	Pebble.openURL('http://dl.dropboxusercontent.com/u/7326702/Do-not-delete/pebbleconf1.html?name='+settingStore.username);
 }
 function webviewclosed(e) {
     console.log("Configuration window returned: " + e.response);
